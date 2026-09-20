@@ -1,3 +1,7 @@
+/* El programa abre el canal del terminal para solicitar datos al usuario de manera directa. Una
+vez abierto, lee un número introducido por teclado, calcula su doble y muestra el resultado final
+por pantalla antes de cerrar el acceso al terminal. */
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
