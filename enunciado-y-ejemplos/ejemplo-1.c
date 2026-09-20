@@ -1,3 +1,9 @@
+/* El programa crea un nuevo proceso a partir del proceso en ejecución para demostrar la concurrencia
+entre un proceso padre y su proceso hijo. Cada proceso reconoce su propio identificador y el de su
+contraparte, mostrando por pantalla sus datos identificativos. Ambos procesos permanecen activos durante
+un intervalo de tiempo limitado (el hijo finaliza tras una breve pausa y el padre tras un periodo
+algo mayor) y cada uno notifica el término de su ejecución antes de concluir. */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
