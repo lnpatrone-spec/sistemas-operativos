@@ -1,3 +1,7 @@
+/* El programa crea un archivo nuevo en el sistema y escribe en él, una por una y línea a línea,
+todas las variables de entorno activas en la sesión. Una vez guardada toda esta configuración,
+cierra el archivo y finaliza. */
+
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
