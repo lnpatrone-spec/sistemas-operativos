@@ -1,3 +1,9 @@
+/* El programa muestra el ciclo de vida de una rutina de atención a interrupciones y su reestablecimiento
+automático al comportamiento por defecto. En un primer momento, programa un temporizador y captura con éxito
+la señal resultante mediante una función propia. Sin embargo, al configurar un segundo temporizador sin
+volver a registrar dicha función, el sistema recurre a su acción predeterminada al cumplirse el tiempo,
+lo que provoca la terminación forzosa del proceso e impide que se alcance la última línea del flujo. */
+
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
