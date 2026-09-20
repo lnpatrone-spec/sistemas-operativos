@@ -1,3 +1,10 @@
+/* El programa crea un proceso hijo para demostrar que los procesos no comparten sus variables en memoria,
+sino que cada uno trabaja con una copia privada e independiente. Tras dividirse, el proceso hijo
+inicializa una variable en cero y la incrementa en varias iteraciones para generar y mostrar
+números pares, mientras que el proceso padre inicializa la misma variable en uno y realiza los mismos
+incrementos para mostrar números impares. Las modificaciones hechas por un proceso no afectan al otro,
+demuestra el aislamiento de memoria entre ambos antes de finalizar. */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
