@@ -1,3 +1,9 @@
+/* El programa coordina a un proceso padre con el cierre de su proceso hijo a través de una
+notificación automática del sistema. El hijo espera 3 segundos y finaliza devolviendo un código de
+salida. Mientras tanto, el proceso padre permanece a la espera hasta que recibe el aviso del término
+de su hijo, momento en el que recoge su código de finalización, lo muestra por pantalla y continúa con
+su flujo de trabajo. */
+
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
