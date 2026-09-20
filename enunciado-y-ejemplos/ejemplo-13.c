@@ -1,3 +1,9 @@
+/* El programa gestiona el ciclo de vida completo de un espacio de memoria compartida en el sistema.
+Primero reserva una zona de memoria común accesible por otros procesos y la prepara inicializando su
+valor a cero. Tras comprobar su disponibilidad mostrando el valor almacenado, el programa desconeta
+dicha zona de memoria de su espacio de trabajo y solicita al sistema operativo su eliminación
+definitiva para liberar los recursos. */
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
