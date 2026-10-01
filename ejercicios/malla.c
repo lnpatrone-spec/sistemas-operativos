@@ -40,9 +40,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        wait(NULL);
-
-        for (int i = 0; i < columnas; i++) {
+        for (int i = 0; i < columnas + 1; i++) { // me aseguro de esperar a todos los hijos incluso el pstree
             wait(NULL);
         }
     } else {
