@@ -1,0 +1,95 @@
+const int N = 5;
+
+/* semaforos */
+semaphore mutex;
+semaphore huecos;
+semaphore productos;
+
+/* variables compartidas */
+int buffer[5];
+int entrada;
+int salida;
+int ocupados;
+
+/* procedimiento auxiliar, dibuja el buffer en consola */
+void dibujar_interfaz(int es_productor, int valor) {
+    int i;
+    if (es_productor == 1) {
+        cout << ">> PRODUCTOR inserto: " << valor << endl;
+    } else {
+        cout << "<< CONSUMIDOR extrajo: " << valor << endl;
+    }
+    
+    cout << "ESTADO DEL BUFFER: ";
+    for (i = 0; i < N; i = i + 1) {
+        if (buffer[i] == -1) {
+            cout << "[ -- ]";
+        } else {
+            cout << "[ " << buffer[i] << " ]";
+        }
+    }
+    cout << " (" << ocupados << "/" << N << " ocupados)" << endl;
+}
+
+void productor() {
+    int item;
+    item = 1;
+    while (item <= 10) {
+        wait(huecos);
+        wait(mutex);
+        
+        /* seccion critica */
+        buffer[entrada] = item;
+        entrada = (entrada + 1) % N;
+        ocupados = ocupados + 1;
+        dibujar_interfaz(1, item);
+        
+        signal(mutex);
+        signal(productos);
+        
+        item = item + 1;
+    }
+}
+
+void consumidor() {
+    int extraido;
+    int veces;
+    veces = 1;
+    while (veces <= 10) {
+        wait(productos);
+        wait(mutex);
+        
+        /* seccion critica */
+        extraido = buffer[salida];
+        buffer[salida] = -1;
+        salida = (salida + 1) % N;
+        ocupados = ocupados - 1;
+        dibujar_interfaz(0, extraido);
+        
+        signal(mutex);
+        signal(huecos);
+        
+        veces = veces + 1;
+    }
+}
+
+void main() {
+    int i;
+
+    entrada = 0;
+    salida = 0;
+    ocupados = 0;
+
+    for (i = 0; i < N; i = i + 1) {
+        buffer[i] = -1;
+    }
+
+    initialsem(mutex, 1);
+    initialsem(huecos, N);
+    initialsem(productos, 0);
+
+    cobegin {
+        productor();
+        consumidor();
+    }
+}
