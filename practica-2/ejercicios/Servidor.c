@@ -42,13 +42,14 @@ int abrir_archivo (const char *archivo) {
     return desc_archivo;
 }
 
-void lectura_archivo (int origen, int destino) {
+void enviar_archivo (int origen, int destino) {
     char buffer[4096]; // 4k
     ssize_t total_leidos;
 
     while ((total_leidos = read(origen,buffer,sizeof(buffer))) > 0) {
-        write(destino,buffer,total_leidos);
+        manejo_errores(write(destino,buffer,total_leidos), "Error al escribir en el socket");
     }
+    manejo_errores(total_leidos, "Error al leer del archivo");
 
     close(origen);
     close(destino);
@@ -61,7 +62,7 @@ void llegada_cliente (int conector_servidor, int conector_cliente, const char *a
     if (pid == 0) {
         close(conector_servidor);
         int origen = abrir_archivo(archivo);
-        lectura_archivo(origen,conector_cliente);
+        enviar_archivo(origen,conector_cliente);
         exit(0);
     } else {
         close(conector_cliente);

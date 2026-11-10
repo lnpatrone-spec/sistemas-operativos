@@ -22,6 +22,14 @@ void manejo_argumentos (int variable) {
     }
 }
 
+void manejo_ip (struct sockaddr_in dir, char *ip_texto, int conector) {
+    if (dir.sin_addr.s_addr == INADDR_NONE) {
+        printf("Error: la dirección IP '%s' no es válida\n", ip_texto);
+        close(conector);
+        exit(1);
+    }
+}
+
 int conexion_socket(char *ip) {
     int conector_cliente = socket(AF_INET, SOCK_STREAM, 0);
     manejo_errores(conector_cliente, "Error en socket");
@@ -31,6 +39,7 @@ int conexion_socket(char *ip) {
     ipRedPuerto.sin_family = AF_INET;
     ipRedPuerto.sin_port = htons(PUERTO);
     ipRedPuerto.sin_addr.s_addr = inet_addr(ip); // dirección IP pasada por el usuario traducida
+    manejo_ip(ipRedPuerto, ip, conector_cliente);
 
     int auxCon = connect(conector_cliente, (struct sockaddr *) &ipRedPuerto, sizeof(ipRedPuerto));
     manejo_errores(auxCon, "Error al conectar el cliente");
@@ -43,8 +52,9 @@ void lectura_socket (int conector_cliente) {
     ssize_t total_leidos;
 
     while ((total_leidos = read(conector_cliente, buffer, sizeof(buffer))) > 0) {
-        write(1,buffer,total_leidos);
+        manejo_errores(write(1,buffer,total_leidos), "Error al escribir en pantalla");
     }
+    manejo_errores(total_leidos, "Error al leer del socket");
     
     close(conector_cliente);
 }
