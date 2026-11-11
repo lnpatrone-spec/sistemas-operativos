@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+#include <arpa/inet.h> // para la función de ayuda inet_addr
 
 #define PUERTO 9999
 

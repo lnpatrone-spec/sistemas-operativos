@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h> // struct sockaddr -- formato genérico
 #include <netinet/in.h> // struct sockaddr_in -- formato cómodo
+#include <arpa/inet.h> // para la función de ayuda inet_ntoa
 
 #define PUERTO 9999
 
@@ -33,6 +34,7 @@ int conexion_socket() {
     int auxListen = listen(conector, 10);
     manejo_errores(auxListen, "Error al poner el servidor a escuchar");
 
+    printf("Servidor escuchando en el puerto %d...\n",PUERTO);
     return conector;
 }
 
@@ -63,9 +65,11 @@ void llegada_cliente (int conector_servidor, int conector_cliente, const char *a
         close(conector_servidor);
         int origen = abrir_archivo(archivo);
         enviar_archivo(origen,conector_cliente);
+        printf("Archivo enviado al cliente (hijo %d)\n", getpid());
         exit(0);
     } else {
         close(conector_cliente);
+        printf("Servidor (padre %d) vuelve a escuchar: hijo %d atendiendo.\n", getpid(), pid); // constancia visual de la liberación del padre
     }
 }
 
@@ -74,15 +78,27 @@ void manejador(int senial) {
     signal(SIGCHLD, manejador);
 }
 
+void aceptar_clientes (int conector_servidor, const char *archivo) {
+    struct sockaddr_in dir_cliente;
+    socklen_t tam_dir;
+    int conector_cliente;
+
+    while(1) {
+        tam_dir = sizeof(dir_cliente);
+        conector_cliente = accept(conector_servidor, (struct sockaddr *) &dir_cliente, &tam_dir);
+        manejo_errores(conector_cliente, "Error al conectar con el cliente");
+        printf("Cliente conectado desde %s\n", inet_ntoa(dir_cliente.sin_addr));
+        llegada_cliente(conector_servidor, conector_cliente, archivo);
+    }
+}
+
 int main() {
     const char *archivo = "Google.html";
     int conector_servidor = conexion_socket();
 
     signal(SIGCHLD, manejador);
-    int conector_cliente;
-    while(1) {
-        conector_cliente = accept(conector_servidor,NULL,NULL); // no necesito consultar datos de quién se conectó
-        manejo_errores(conector_cliente, "Error al conectar con el cliente");
-        llegada_cliente(conector_servidor,conector_cliente,archivo);
-    }
+    aceptar_clientes(conector_servidor, archivo);
+
+    close(conector_servidor); // nunca acaba por esta vía pero resulta buena práctica
+    return 0;
 }
