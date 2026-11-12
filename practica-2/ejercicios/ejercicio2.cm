@@ -63,7 +63,7 @@ int producir(int num) {
 	int k;
 	int pausa;
 	pausa = 0;
-	for (k = 0; k < 80; k = k + 1) {
+	for (k = 0; k < 5; k = k + 1) {
 		pausa = pausa + 1;
 	}
 	return num;
@@ -96,7 +96,7 @@ void consumir(int valor) {
 	int k;
 	int pausa;
 	pausa = valor;
-	for (k = 0; k < 180; k = k + 1) {
+	for (k = 0; k < 10; k = k + 1) {
 		pausa = pausa + 1;
 	}
 }
