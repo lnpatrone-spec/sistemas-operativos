@@ -73,11 +73,6 @@ void llegada_cliente (int conector_servidor, int conector_cliente, const char *a
     }
 }
 
-void manejador(int senial) {
-    wait(NULL);
-    signal(SIGCHLD, manejador);
-}
-
 void aceptar_clientes (int conector_servidor, const char *archivo) {
     struct sockaddr_in dir_cliente;
     socklen_t tam_dir;
@@ -96,7 +91,6 @@ int main() {
     const char *archivo = "Google.html";
     int conector_servidor = conexion_socket();
 
-    signal(SIGCHLD, manejador);
     aceptar_clientes(conector_servidor, archivo);
 
     close(conector_servidor); // nunca acaba por esta vía pero resulta buena práctica
