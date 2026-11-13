@@ -4,19 +4,12 @@ const
 	int GREEN = 5; int MAGENTA = 6; int WHITE = 7;
 
 	int CIRCLE = 1;
-	int LINE = 2;
 	int RECTANGLE = 3;
 	int TRIANGLE = 4;
-	int ANIMAGE = 5;
-	int RNDRECT = 6;
-	int LINE_CIRCLE = 21;
 	int LINE_RECTANGLE = 22;
-	int LINE_TRIANGLE = 23;
-	int LINE_RNDRECT = 24;
-	int NUMBER_BOX = 25;
 
-	int N = 5;
-	int TOTAL_ITEMS = 10;
+const int N = 5;
+const int TOTAL_ITEMS = 10;
 
 /* Semaforos */
 semaphore mutex;
@@ -24,116 +17,13 @@ semaphore huecos;
 semaphore productos;
 
 /* Variables compartidas */
-int buffer[5];
+int buffer[N];
 int entrada;
 int salida;
 int ocupados;
 
-/* Dibuja los 5 huecos del buffer y dos circulos para Productor y Consumidor */
-void inicializar_graficos() {
+void iniciar_variables() {
 	int i;
-	for (i = 0; i < N; i = i + 1) {
-		create(i, RECTANGLE, RED, 40 + i * 80, 140, 60, 60);
-	}
-	create(10, CIRCLE, YELLOW, 120, 50, 45, 45);
-	create(11, CIRCLE, YELLOW, 260, 50, 45, 45);
-}
-
-/* Muestra tambien el estado por consola */
-void dibujar_interfaz(int es_productor, int valor) {
-	int i;
-	if (es_productor == 1) {
-		cout << ">> PRODUCTOR inserto: " << valor << endl;
-	} else {
-		cout << "<< CONSUMIDOR extrajo: " << valor << endl;
-	}
-
-	cout << "ESTADO DEL BUFFER: ";
-	for (i = 0; i < N; i = i + 1) {
-		if (buffer[i] == -1) {
-			cout << "[ -- ]";
-		} else {
-			cout << "[ " << buffer[i] << " ]";
-		}
-	}
-	cout << " (" << ocupados << "/" << N << " ocupados)" << endl;
-}
-
-int producir(int num) {
-	int k;
-	int pausa;
-	pausa = 0;
-	for (k = 0; k < 5; k = k + 1) {
-		pausa = pausa + 1;
-	}
-	return num;
-}
-
-void anadir_buffer(int item) {
-	buffer[entrada] = item;
-	changecolor(entrada, GREEN);
-	changecolor(10, BLUE);
-	changecolor(11, YELLOW);
-	entrada = (entrada + 1) % N;
-	ocupados = ocupados + 1;
-	dibujar_interfaz(1, item);
-}
-
-int coger_buffer() {
-	int extraido;
-	extraido = buffer[salida];
-	buffer[salida] = -1;
-	changecolor(salida, RED);
-	changecolor(10, YELLOW);
-	changecolor(11, BLUE);
-	salida = (salida + 1) % N;
-	ocupados = ocupados - 1;
-	dibujar_interfaz(0, extraido);
-	return extraido;
-}
-
-void consumir(int valor) {
-	int k;
-	int pausa;
-	pausa = valor;
-	for (k = 0; k < 10; k = k + 1) {
-		pausa = pausa + 1;
-	}
-}
-
-void productor() {
-	int item;
-	int dato;
-	item = 1;
-	while (item <= TOTAL_ITEMS) {
-		dato = producir(item);
-		wait(huecos);
-		wait(mutex);
-		anadir_buffer(dato);
-		signal(mutex);
-		signal(productos);
-		item = item + 1;
-	}
-}
-
-void consumidor() {
-	int extraido;
-	int veces;
-	veces = 1;
-	while (veces <= TOTAL_ITEMS) {
-		wait(productos);
-		wait(mutex);
-		extraido = coger_buffer();
-		signal(mutex);
-		signal(huecos);
-		consumir(extraido);
-		veces = veces + 1;
-	}
-}
-
-void main() {
-	int i;
-
 	entrada = 0;
 	salida = 0;
 	ocupados = 0;
@@ -145,8 +35,160 @@ void main() {
 	initialsem(mutex, 1);
 	initialsem(huecos, N);
 	initialsem(productos, 0);
+}
 
-	inicializar_graficos();
+/* DIBUJO INICIAL DE COMPONENTES */
+void dibujar_buffer() {
+	int i;
+	create(20, LINE_RECTANGLE, BLACK, 25, 165, 410, 90);
+	for (i = 0; i < N; i = i + 1) {
+		create(i, RECTANGLE, RED, 40 + i * 80, 180, 60, 60);
+		create(30 + i, CIRCLE, BLACK, 58 + i * 80, 198, 24, 24);
+		makevisible(30 + i, 0);
+	}
+}
+
+void dibujar_productor() {
+	create(10, TRIANGLE, WHITE, 102, 70, 66, 56);
+}
+
+void dibujar_consumidor() {
+	create(11, CIRCLE, WHITE, 295, 68, 60, 60);
+}
+
+void iniciar_graficos() {
+	dibujar_buffer();
+	dibujar_productor();
+	dibujar_consumidor();
+}
+
+/* ACTUALIZACION VISUAL DE ESTADOS E INTERFAZ */
+void dibujar_interfaz(int es_productor, int valor) {
+	int i;
+	if (es_productor == 1) {
+		cout << "Productor inserta " << valor << " | Buffer: ";
+	} else {
+		cout << "Consumidor extrae " << valor << " | Buffer: ";
+	}
+
+	for (i = 0; i < N; i = i + 1) {
+		if (buffer[i] == -1) {
+			cout << "- ";
+		} else {
+			cout << buffer[i] << " ";
+		}
+	}
+	cout << "(" << ocupados << "/" << N << ")" << endl;
+}
+
+/* FUNCION AUXILIAR PARA LA INTERFAZ */
+void retardo(int ciclos) {
+	int k;
+	int temp;
+	temp = 0;
+	for (k = 0; k < ciclos; k = k + 1) {
+		temp = temp + 1;
+	}
+}
+
+/* TAREAS DEL PRODUCTOR */
+int producir(int num) {
+	retardo(40);
+	return num;
+}
+
+void anadir_buffer(int item) {
+	/* Entra en la seccion critica */
+	changecolor(10, BLUE);
+	changecolor(20, BLUE);
+
+	buffer[entrada] = item;
+	changecolor(entrada, GREEN);
+	makevisible(30 + entrada, 1);
+	entrada = (entrada + 1) % N;
+	ocupados = ocupados + 1;
+	dibujar_interfaz(1, item);
+	retardo(50);
+
+	/* Sale de la seccion critica antes de soltar mutex */
+	changecolor(20, BLACK);
+	changecolor(10, WHITE);
+}
+
+void productor() {
+	int item;
+	int dato;
+	item = 1;
+	while (item <= TOTAL_ITEMS) {
+		changecolor(10, MAGENTA);
+		dato = producir(item);
+
+		changecolor(10, YELLOW);
+		wait(huecos);
+		wait(mutex);
+
+		anadir_buffer(dato);
+
+		signal(mutex);
+		signal(productos);
+
+		item = item + 1;
+	}
+}
+
+/* TAREAS DEL CONSUMIDOR */
+void consumir(int valor) {
+	retardo(125);
+}
+
+int coger_buffer() {
+	int extraido;
+
+	/* Entra en la seccion critica */
+	changecolor(11, BLUE);
+	changecolor(20, BLUE);
+
+	extraido = buffer[salida];
+	buffer[salida] = -1;
+	makevisible(30 + salida, 0);
+	changecolor(salida, RED);
+	salida = (salida + 1) % N;
+	ocupados = ocupados - 1;
+	dibujar_interfaz(0, extraido);
+	retardo(50);
+
+	/* Sale de la seccion critica antes de soltar mutex */
+	changecolor(20, BLACK);
+	changecolor(11, WHITE);
+
+	return extraido;
+}
+
+void consumidor() {
+	int extraido;
+	int veces;
+	veces = 1;
+	while (veces <= TOTAL_ITEMS) {
+		changecolor(11, YELLOW);
+		wait(productos);
+		wait(mutex);
+
+		extraido = coger_buffer();
+
+		signal(mutex);
+		signal(huecos);
+
+		changecolor(11, MAGENTA);
+		consumir(extraido);
+		changecolor(11, WHITE);
+
+		veces = veces + 1;
+	}
+}
+
+void main() {
+	iniciar_variables();
+	iniciar_graficos();
 
 	cobegin {
 		productor();
