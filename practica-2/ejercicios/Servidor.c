@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
 #include <fcntl.h>
-#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/socket.h> // struct sockaddr -- formato genérico
 #include <netinet/in.h> // struct sockaddr_in -- formato cómodo
