@@ -16,6 +16,15 @@ void manejo_errores (int variable, const char *mensaje) {
     }
 }
 
+void escribir_todo(int fd, const char *buf, ssize_t total, const char *mensaje) { // funcion auxiliar para no perder bytes
+    ssize_t enviados = 0;
+    while (enviados < total) {
+        ssize_t n = write(fd, buf + enviados, total - enviados);
+        manejo_errores(n, mensaje);
+        enviados += n;
+    }
+}
+
 int conexion_socket() {
     int conector = socket(AF_INET, SOCK_STREAM, 0);
     manejo_errores(conector, "Error en socket");
@@ -47,7 +56,7 @@ void enviar_archivo (int origen, int destino) {
     ssize_t total_leidos;
 
     while ((total_leidos = read(origen,buffer,sizeof(buffer))) > 0) {
-        manejo_errores(write(destino,buffer,total_leidos), "Error al escribir en el socket");
+        escribir_todo(destino, buffer, total_leidos, "Error al escribir en el socket");
     }
     manejo_errores(total_leidos, "Error al leer del archivo");
 

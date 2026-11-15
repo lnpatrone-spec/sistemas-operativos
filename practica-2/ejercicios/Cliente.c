@@ -47,12 +47,21 @@ int conexion_socket(char *ip) {
     return conector_cliente;
 }
 
+void escribir_todo(int fd, const char *buf, ssize_t total, const char *mensaje) { // funcion auxiliar para no perder bytes
+    ssize_t enviados = 0;
+    while (enviados < total) {
+        ssize_t n = write(fd, buf + enviados, total - enviados);
+        manejo_errores(n, mensaje);
+        enviados += n;
+    }
+}
+
 void lectura_socket (int conector_cliente) {
     char buffer[4096]; // 4k
     ssize_t total_leidos;
 
     while ((total_leidos = read(conector_cliente, buffer, sizeof(buffer))) > 0) {
-        manejo_errores(write(1,buffer,total_leidos), "Error al escribir en pantalla");
+        escribir_todo(1, buffer, total_leidos, "Error al escribir en pantalla");
     }
     manejo_errores(total_leidos, "Error al leer del socket");
     
